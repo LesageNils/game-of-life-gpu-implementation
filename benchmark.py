@@ -1,11 +1,10 @@
 import time
-import numpy as np
 from PIL import Image
 
 from gpu_life_separated import GameOfLifeGPU as GameInt8
 
 # Taille de la grille
-GRID_SIZE = 80000
+GRID_SIZE = 70_000
 BENCHMARK_DURATION = 15
 
 
@@ -25,8 +24,8 @@ def benchmark(life_gpu, name):
         #life_gpu.render(x_end=1920, y_end=1080)
         frames += 1
 
-    # Après la boucle, on rend la dernière image
-    #image = life_gpu.render()
+
+    image = life_gpu.render()
 
     elapsed = time.perf_counter() - start
     fps = frames / elapsed
@@ -38,8 +37,8 @@ def benchmark(life_gpu, name):
 
     # Sauvegarde de la dernière image
     filename = f"gameoflife_{name.lower()}_{GRID_SIZE}px.png"
-    #print(f"Sauvegarde de la dernière image dans {filename} ...")
-    #Image.fromarray(image, mode="RGBA").save(filename)
+    #rint(f"Sauvegarde de la dernière image dans {filename} ...")
+    Image.fromarray(image, mode="RGBA").save(filename)
 
     # Nettoyage GPU + RAM
     life_gpu.stop()

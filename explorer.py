@@ -1,13 +1,9 @@
-# gol_explorer.py
 import sys
 import math
 import time
 import numpy as np
 import pygame
 from pygame.locals import *
-# Assure que votre classe GameOfLifeGPU est importable.
-# Par exemple : from game_of_life_gpu import GameOfLifeGPU
-# Ici j'assume qu'elle est dans le même fichier ou correctement importée.
 from gpu_life_separated import GameOfLifeGPU  # <-- Remplacez par l'import réel
 
 # -------------------------
@@ -15,8 +11,8 @@ from gpu_life_separated import GameOfLifeGPU  # <-- Remplacez par l'import réel
 # -------------------------
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 700
-GRID_SIZE = 80000  # ou la taille que vous utilisez dans GameOfLifeGPU(grid_size)
-START_CELL_SIZE = 4  # pixels par cellule au démarrage
+GRID_SIZE = 20_000
+START_CELL_SIZE = 4
 
 
 # -------------------------
@@ -25,7 +21,6 @@ START_CELL_SIZE = 4  # pixels par cellule au démarrage
 def read_full_grid(gpu: GameOfLifeGPU):
     """Lit toute la grille GPU dans un numpy array uint8 (shape (N,N))."""
     cpu_buf = np.empty((gpu.grid_size, gpu.grid_size), dtype=np.uint8)
-    # copie depuis le buffer GPU (grid_buffer) vers cpu_buf
     cl = __import__("pyopencl")
     cl.enqueue_copy(gpu.command_queue, cpu_buf, gpu.grid_buffer)
     gpu.command_queue.finish()
@@ -96,10 +91,6 @@ def main():
                 elif event.key == K_RIGHT:
                     # étape manuelle
                     gpu.step()
-                elif event.key == K_c:
-                    # exemple : randomize (écrit une grille aléatoire)
-                    cpu = np.random.randint(0, 2, (gpu.grid_size, gpu.grid_size)).astype(np.uint8)
-                    write_full_grid(gpu, cpu)
                 elif event.key == K_f:
                     # étape manuelle
                     step_interval = step_interval / 2
@@ -110,10 +101,6 @@ def main():
             elif event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:  # clic gauche -> toggle cellule
                     mx, my = event.pos
-                    view_w_px, view_h_px = screen.get_size()
-                    # nombre de cellules visibles en x,y
-                    cells_x = math.ceil(view_w_px / cell_size)
-                    cells_y = math.ceil(view_h_px / cell_size)
                     # calcule coord cellule cliquée
                     cx = offset_x + (mx // cell_size)
                     cy = offset_y + (my // cell_size)
