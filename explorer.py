@@ -4,20 +4,18 @@ import time
 import numpy as np
 import pygame
 from pygame.locals import *
-from gpu_life_separated import GameOfLifeGPU  # <-- Remplacez par l'import réel
+from gpu_life_separated_packed import GameOfLifeGPU
 
-# -------------------------
+
 # Configuration initiale
-# -------------------------
+
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 700
-GRID_SIZE = 20_000
+GRID_SIZE = 250000
 START_CELL_SIZE = 4
 
 
-# -------------------------
-# Helpers pour interaction GPU <-> CPU
-# -------------------------
+
 def read_full_grid(gpu: GameOfLifeGPU):
     """Lit toute la grille GPU dans un numpy array uint8 (shape (N,N))."""
     cpu_buf = np.empty((gpu.grid_size, gpu.grid_size), dtype=np.uint8)
@@ -59,7 +57,7 @@ def main():
 
     # Vue (en coordonnées de cellules)
     cell_size = START_CELL_SIZE  # pixels par cellule
-    offset_x = 0  # cellule en haut-gauche visible
+    offset_x = 0
     offset_y = 0
 
     dragging = False
@@ -99,13 +97,7 @@ def main():
                     step_interval = step_interval * 2
 
             elif event.type == MOUSEBUTTONDOWN:
-                if event.button == 1:  # clic gauche -> toggle cellule
-                    mx, my = event.pos
-                    # calcule coord cellule cliquée
-                    cx = offset_x + (mx // cell_size)
-                    cy = offset_y + (my // cell_size)
-                    toggle_cell(gpu, int(cx), int(cy))
-                elif event.button == 3:  # bouton droit -> start dragging
+                if event.button == 3:  # bouton droit -> start dragging
                     dragging = True
                     drag_start_px = event.pos
                     drag_start_offset = (offset_x, offset_y)
@@ -207,7 +199,7 @@ def main():
         pygame.display.flip()
         pygame.display.set_caption(
             "Game of Life — GPU explorer - " + str(1 / step_interval) + " Hz - " + str(int(1 / speed)) + " step fps max")
-        clock.tick(60)  # framerate plafonné, mais simulation à 1Hz indépendante
+        clock.tick(60)  # framerate plafonné, mais simulation indépendante
 
     # Clean up
     gpu.stop()
