@@ -124,7 +124,6 @@ __kernel void update(
 
 
 // RENDU (Unpacking pour affichage)
-==
 __kernel void render_region(
     __global const uint* grid,
     __global uchar* output_image,
