@@ -1,6 +1,6 @@
 import cv2
 from tqdm import tqdm
-from gpu_life_separated import GameOfLifeGPU  # ou colle la classe directement ici
+from gpu_life_separated_packed import GameOfLifeGPU  # ou colle la classe directement ici
 
 
 def generate_game_of_life_video(
@@ -39,6 +39,6 @@ if __name__ == "__main__":
     generate_game_of_life_video(
         grid_size=3000,
         frames=300,  # ≈ 30 secondes à 30 fps
-        output_file="game_of_life_1440p.mp4",
+        output_file="images/game_of_life_1440p.mp4",
         fps=60
     )
