@@ -23,12 +23,37 @@ class GameOfLifeGPU:
 
         # === Initialisation OpenCL ===
         platforms = cl.get_platforms()
-        # On essaie de prendre un GPU, sinon CPU
-        devices = platforms[0].get_devices(device_type=cl.device_type.GPU)
-        if not devices:
-            devices = platforms[0].get_devices(device_type=cl.device_type.ALL)
+        print(f"Plateformes trouvées : {platforms}")
 
-        self.context = cl.Context(devices=devices)
+        best_device = None
+        max_memory = 0
+
+        # 1. On parcourt toutes les plateformes disponibles
+        for platform in platforms:
+            # On cherche d'abord les GPU dédiés/disponibles sur cette plateforme
+            devices = platform.get_devices(device_type=cl.device_type.GPU)
+
+            # Si aucun GPU n'est trouvé, on se rabat sur tous les types (CPU, Integrated, etc.)
+            if not devices:
+                devices = platform.get_devices(device_type=cl.device_type.ALL)
+
+            # 2. On compare la mémoire de chaque appareil trouvé
+            for device in devices:
+                # global_mem_size renvoie la taille en octets
+                if device.global_mem_size > max_memory:
+                    max_memory = device.global_mem_size
+                    best_device = device
+
+        # 3. Validation et affichage du résultat
+        if best_device:
+            print("--- En fonction de la mémoire globale ---")
+            print(f"Appareil sélectionné : {best_device.name.strip()}")
+            print(f"Plateforme associée  : {best_device.platform.name.strip()}")
+            print(f"Mémoire globale      : {max_memory / (1024 ** 3):.2f} Go")
+        else:
+            print("Aucun appareil OpenCL n'a été trouvé.")
+
+        self.context = cl.Context(devices=[best_device])
         self.queue = cl.CommandQueue(self.context)
         mem_flags = cl.mem_flags
 
