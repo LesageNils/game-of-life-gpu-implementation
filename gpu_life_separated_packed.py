@@ -73,6 +73,7 @@ class GameOfLifeGPU:
             kernel_code = f.read()
 
         self.program = cl.Program(self.context, kernel_code).build()
+        self.update_kernel = cl.Kernel(self.program, "update")
 
         # === Randomisation ===
         seed = np.uint32(np.random.randint(0, 0xFFFFFFFF, dtype=np.uint64))
@@ -91,10 +92,9 @@ class GameOfLifeGPU:
         gc.collect()
 
     def step(self):
-        # On lance le kernel sur une grille 2D où X est le nombre de mots de 32 bits
         global_work_size = (self.width_in_uints, self.grid_size)
 
-        self.program.update(
+        self.update_kernel(
             self.queue,
             global_work_size,
             None,
@@ -104,7 +104,6 @@ class GameOfLifeGPU:
             np.int32(self.width_in_uints)
         ).wait()
 
-        # Échange des buffers
         self.grid_buffer, self.next_grid_buffer = self.next_grid_buffer, self.grid_buffer
 
     def render(self, x_start=0, y_start=0, x_end=None, y_end=None, rgba=True):
